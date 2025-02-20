@@ -3,29 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <title>VisualEditor</title>
-  <!-- Favicon (shows as browser tab icon) -->
+  <!-- Favicon -->
   <link rel="icon" href="https://i.postimg.cc/JhYSF2V3/image-ic-visualeditor.png" type="image/png">
   <!-- Noto Sans Font -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
   <!-- Material Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
+    /* Global Custom Scrollbar Styles */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #555 #2e2e2e;
+    }
+    *::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    *::-webkit-scrollbar-track {
+      background: #2e2e2e;
+    }
+    *::-webkit-scrollbar-thumb {
+      background: #555;
+      border-radius: 4px;
+    }
     /* Disable dragging for all images */
     img {
       -webkit-user-drag: none;
-      -khtml-user-drag: none;
-      -moz-user-drag: none;
-      -o-user-drag: none;
       user-drag: none;
     }
     /* Global & UI Styles */
     * { box-sizing: border-box; }
     body { margin: 0; font-family: 'Noto Sans', sans-serif; background: #121212; color: #e0e0e0; }
-    /* Disable text selection for everything except textareas and inputs (i.e. code remains selectable) */
+    /* Disable text selection except on inputs and textareas */
     body *:not(textarea):not(input) { user-select: none; }
-    button { font-family: 'Noto Sans', sans-serif; background: #3498db; color: #fff; border: none; padding: 10px 20px; cursor: pointer; font-size: 16px; margin: 5px; border-radius: 0; }
+    button { font-family: 'Noto Sans', sans-serif; background: #3498db; color: #fff; border: none; padding: 10px 20px; cursor: pointer; font-size: 16px; margin: 5px; }
     button:hover { background: #2980b9; }
-    select { border-radius: 0; }
+    select { }
     /* Slider customization */
     input[type=range] {
       -webkit-appearance: none; width: 100%; height: 6px; background: #444; outline: none;
@@ -39,62 +52,88 @@
     /* Disable resizing on modal textareas */
     .modal-field textarea { resize: none; }
     /* Taskbar */
-    .taskbar { width: 100%; background: #273c56; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
+    .taskbar { width: 100%; background: #273c56; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
     .taskbar .left { display: flex; align-items: center; }
     .taskbar .left img { height: 30px; margin-right: 10px; }
     .taskbar h1 { margin: 0; font-size: 20px; }
-    .taskbar .right { display: flex; align-items: center; }
     .taskbar .right a { color: lightgray; text-decoration: none; margin-right: 10px; }
     /* Main content */
     .main { padding: 20px; }
     .welcome-screen { font-size: 26px; margin-bottom: 20px; }
     .welcome-screen img { height: 40px; vertical-align: middle; margin-right: 10px; }
+    /* Project list */
     .project-list { margin-top: 20px; }
-    .project-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 1px solid #444; margin-bottom: 5px; cursor: pointer; }
-    .trash-btn { background: transparent; border: none; color: #e0e0e0; cursor: pointer; font-size: 18px; margin-left: auto; }
+    .project-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px; border: 1px solid #444; margin-bottom: 5px;
+    }
+    .project-details {
+      font-size: 14px;
+    }
+    .project-details .project-title { color: white; }
+    .project-details .project-updated { color: gray; }
+    .trash-btn { background: transparent; border: none; color: #e0e0e0; cursor: pointer; font-size: 18px; }
     /* Modal styles */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); 
-            align-items: center; justify-content: center; animation: fadeIn 0.3s; z-index: 1000; }
-    /* Ensure popups appear above the editor */
-    #editProjectModal, #saveAsModal, #downloadPopupModal, #confirmDeleteModal, #aboutModal, #importProjectModal, #templateModal { z-index: 1200; }
-    .modal-content { background: #2e2e2e; padding: 20px; border: 1px solid #555; width: 400px; }
+    .modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8); align-items: center; justify-content: center; animation: fadeIn 0.3s;
+      z-index: 1000;
+    }
+    /* Specific modals on top */
+    #editProjectModal, #saveAsModal, #confirmDeleteModal, #aboutModal, #importProjectModal, #templateModal, #whatsNewModal, #editorPopupModal { z-index: 1200; }
+    .modal-content {
+      background: #2e2e2e; padding: 20px; border: 1px solid #555; width: 400px;
+    }
     .modal-header { font-size: 20px; margin-bottom: 10px; }
     .modal-field { margin-bottom: 10px; }
     .modal-field label { display: block; margin-bottom: 5px; }
-    .modal-field input[type="text"], .modal-field textarea, .modal-field select {
+    .modal-field input[type="text"],
+    .modal-field textarea,
+    .modal-field select {
       width: 100%; padding: 5px; background: #444; border: 1px solid #666; color: #e0e0e0;
     }
-    /* Download popup animation */
-    @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    #downloadPopupModal .modal-content { width: 300px; animation: slideUp 0.5s ease forwards; }
+    /* Download popup animation - (removed download modal as not used) */
     /* About modal (white background) */
     #aboutModal .modal-content { width: 500px; background: #fff; color: #000; padding: 20px; }
     #aboutModal .modal-header { font-size: 28px; font-weight: bold; text-align: center; }
     /* Editor modal & header */
-    .editor-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1e1e1e; z-index: 1100; flex-direction: column; overflow: hidden; }
-    .editor-header { display: flex; justify-content: space-between; align-items: center; background: #2e2e2e; padding: 10px; border-bottom: 1px solid #555; flex-wrap: wrap; }
+    .editor-modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1e1e1e;
+      z-index: 1100; flex-direction: column; overflow: hidden;
+    }
+    .editor-header {
+      display: flex; justify-content: space-between; align-items: center; background: #2e2e2e;
+      padding: 10px; border-bottom: 1px solid #555; flex-wrap: wrap;
+    }
     .project-info { font-size: 18px; }
     .project-info span:first-child { color: lightgray; }
     #displayTitle { color: #fff; font-weight: bold; }
     #displayDesc { color: #aaa; }
     .editor-actions { display: flex; align-items: center; flex-wrap: wrap; }
+    /* Running timer label */
+    #runningTimerLabel { color: lightgray; margin-right: 10px; }
+    #autosaveLabel { color: #aaa; margin-right: 10px; }
     .editor-actions button { margin-left: 10px; }
     .btn-run { background: #28a745; }
     .btn-pause { background: #ffc107; color: #000; }
     .btn-stop { background: #dc3545; }
     /* Fullscreen taskbar */
-    .fullscreen-taskbar { display: none; position: absolute; top: 0; left: 0; width: 100%; background: #2e2e2e; padding: 5px; z-index: 1150; align-items: center; }
+    .fullscreen-taskbar {
+      display: none; position: absolute; top: 0; left: 0; width: 100%; background: #2e2e2e;
+      padding: 5px; z-index: 1150; align-items: center;
+    }
     /* Editor body */
     .editor-body { display: flex; flex: 1; overflow: hidden; }
-    /* Fixed code area (no horizontal stretch) */
     .code-area { flex: 0 0 500px; padding: 10px; overflow: hidden; }
     .code-editor-container { display: flex; height: 100%; }
-    .line-numbers { width: 40px; background: #333; color: #aaa; text-align: right; padding: 10px 5px; font-family: monospace; line-height: 1.4; overflow: hidden; }
-    .code-area textarea { flex: 1; padding: 10px; background: #121212; color: #e0e0e0; border: none; outline: none; font-family: monospace; font-size: 14px; height: 100%; resize: none; overflow-y: scroll; }
-    .code-area textarea::-webkit-scrollbar { width: 8px; }
-    .code-area textarea::-webkit-scrollbar-track { background: #2e2e2e; }
-    .code-area textarea::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
-    .code-area textarea { scrollbar-width: thin; scrollbar-color: #555 #2e2e2e; }
+    .line-numbers {
+      width: 40px; background: #333; color: #aaa; text-align: right; padding: 10px 5px;
+      font-family: monospace; line-height: 1.4; overflow: hidden;
+    }
+    .code-area textarea {
+      flex: 1; padding: 10px; background: #121212; color: #e0e0e0; border: none; outline: none;
+      font-family: monospace; font-size: 14px; height: 100%; resize: none; overflow-y: scroll;
+    }
     /* Vertical resizer for HTML view */
     .vertical-resizer { height: 5px; background: #444; cursor: ns-resize; }
     .right-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -104,7 +143,6 @@
     .log-text { color: #fff; }
     .log-time { color: #aaa; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    /* Fade out animation */
     @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
     .fade-out { animation: fadeOut 0.3s forwards; }
     /* Fullscreen mode */
@@ -112,6 +150,18 @@
     /* Template box styles */
     .template-box { background: #444; color: #e0e0e0; padding: 10px; cursor: pointer; text-align: center; }
     .template-box.selected { border: 2px solid #3498db; }
+    /* "What's New" Modal (slide-up from bottom) */
+    @keyframes slideUpFromBottom {
+      from { transform: translateY(100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .whats-new-content { animation: slideUpFromBottom 0.5s ease forwards; }
+    /* Editor Popup expand animation */
+    @keyframes expandIn {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .expand-popup { animation: expandIn 0.5s ease forwards; }
   </style>
 </head>
 <body>
@@ -123,7 +173,8 @@
     </div>
     <div class="right">
       <a href="#" id="aboutLink" style="color: lightgray;">About</a>
-      <button id="downloadTaskbarBtn">Download App</button>
+      <!-- New Download App text link -->
+      <a href="https://github.com/toxic5018/visualeditor/releases" target="_blank" style="color: lightgray; text-decoration: none;">Download App</a>
     </div>
   </div>
   <!-- Main Content -->
@@ -140,22 +191,20 @@
   <div class="modal" id="aboutModal">
     <div class="modal-content" style="background:#fff; color:#000;">
       <div class="modal-header">
-        <img src="https://i.postimg.cc/JhYSF2V3/image-ic-visualeditor.png" alt="Icon" style="height:50px; vertical-align:middle;" draggable="false"> VisualEditor
+        <img src="https://i.postimg.cc/JhYSF2V3/image-ic-visualeditor.png" alt="Icon" style="height:50px; vertical-align:middle;" draggable="false">
+        VisualEditor
       </div>
-      <div style="text-align:center; font-size:16px; margin-bottom:10px;">
-        Version 1.0.0 (up to date 💯)
-      </div>
+      <div style="text-align:center; font-size:16px; margin-bottom:10px;">Version 1.0.0 (up to date 💯)</div>
       <div style="text-align:center; margin-bottom:10px;">
         <a href="https://discord.com/invite/KjEZtRmWwc" target="_blank" style="margin: 0 10px;">Discord</a>
         <a href="https://github.com/toxic5018/visualeditor" target="_blank" style="margin: 0 10px;">GitHub</a>
         <a href="https://www.youtube.com/@toxic5018.2" target="_blank" style="margin: 0 10px;">YouTube</a>
         <a href="https://x.com/picture1080X" target="_blank" style="margin: 0 10px;">Twitter</a>
       </div>
-      <div style="text-align:center; font-size:16px; margin-bottom:10px;">
-        Created by Toxic5018
-      </div>
+      <div style="text-align:center; font-size:16px; margin-bottom:10px;">Created by Toxic5018</div>
       <div style="text-align:center; font-size:14px; color:lightgray; margin-bottom:10px;">
-        VisualEditor is a powerful yet lightweight code editor designed to help you quickly prototype, test, and debug your web projects—all within your browser.
+        VisualEditor is a lightweight, browser-based code editor designed for rapid prototyping and testing.
+        Version 1.0.0 marks the inaugural release, featuring autosave, customizable templates, and device-specific local storage for your projects.
       </div>
       <div style="text-align:center; margin-top:10px;">
         Compatibility with this website:
@@ -165,9 +214,7 @@
           <img src="https://img.icons8.com/color/512/javascript.png" alt="JS" style="height:40px;" draggable="false">
         </div>
       </div>
-      <div style="text-align:center; margin-top:20px;">
-        <button id="aboutCloseBtn">Close</button>
-      </div>
+      <div style="text-align:center; margin-top:20px;"><button id="aboutCloseBtn">Close</button></div>
     </div>
   </div>
   <!-- Create Project Modal -->
@@ -181,11 +228,12 @@
       <div class="modal-field">
         <label>Version:</label>
         <div class="version-sliders">
-          <input type="range" id="versionMajor" min="0" max="9" value="1"><span id="majorDisplay">1</span>
-          <span>.</span>
-          <input type="range" id="versionMinor" min="0" max="9" value="0"><span id="minorDisplay">0</span>
-          <span>.</span>
-          <input type="range" id="versionPatch" min="0" max="9" value="0"><span id="patchDisplay">0</span>
+          <input type="range" id="versionMajor" min="0" max="9" value="1">
+          <span id="majorDisplay">1</span> .
+          <input type="range" id="versionMinor" min="0" max="9" value="0">
+          <span id="minorDisplay">0</span> .
+          <input type="range" id="versionPatch" min="0" max="9" value="0">
+          <span id="patchDisplay">0</span>
         </div>
       </div>
       <div class="modal-field">
@@ -237,11 +285,12 @@
       <div class="modal-field">
         <label>Version:</label>
         <div class="version-sliders">
-          <input type="range" id="editVersionMajor" min="0" max="9" value="1"><span id="editMajorDisplay">1</span>
-          <span>.</span>
-          <input type="range" id="editVersionMinor" min="0" max="9" value="0"><span id="editMinorDisplay">0</span>
-          <span>.</span>
-          <input type="range" id="editVersionPatch" min="0" max="9" value="0"><span id="editPatchDisplay">0</span>
+          <input type="range" id="editVersionMajor" min="0" max="9" value="1">
+          <span id="editMajorDisplay">1</span> .
+          <input type="range" id="editVersionMinor" min="0" max="9" value="0">
+          <span id="editMinorDisplay">0</span> .
+          <input type="range" id="editVersionPatch" min="0" max="9" value="0">
+          <span id="editPatchDisplay">0</span>
         </div>
       </div>
       <div style="text-align:right;">
@@ -293,21 +342,6 @@
       </div>
     </div>
   </div>
-  <!-- Download Popup Modal -->
-  <div class="modal" id="downloadPopupModal">
-    <div class="modal-content">
-      <div class="modal-header">Download Instructions</div>
-      <div class="modal-field">
-        <p>1. Click the Download button below.</p>
-        <p>2. Save the file from your browser.</p>
-        <p>3. Enjoy your app!</p>
-      </div>
-      <div style="text-align:right;">
-        <button id="downloadStartBtn">Download</button>
-        <button id="downloadCancelBtn">Cancel</button>
-      </div>
-    </div>
-  </div>
   <!-- Import Project Modal -->
   <div class="modal" id="importProjectModal">
     <div class="modal-content">
@@ -320,6 +354,32 @@
         <button id="importProjectCreateBtn" disabled>Create</button>
         <button id="importProjectCancelBtn">Cancel</button>
       </div>
+    </div>
+  </div>
+  <!-- "What's New" Modal (slide-up from bottom) -->
+  <div class="modal" id="whatsNewModal">
+    <div class="modal-content whats-new-content">
+      <div class="modal-header">What's new in Version <span id="appVersionText"></span>?</div>
+      <div class="modal-field">
+        <p>Version 1.0.0 is the inaugural release of VisualEditor. This browser-based code editor provides a lightweight, intuitive environment with autosave, customizable templates, and device-specific local storage to help you rapidly prototype and test your web projects.</p>
+      </div>
+      <div class="modal-field">
+        <a href="#" id="showMoreLink" style="color: lightblue; text-decoration: underline;">Show more in About</a>
+      </div>
+      <div class="modal-field">
+        <label>
+          <input type="checkbox" id="dontShowAgainCheckbox"> Don't show this again until next update
+        </label>
+      </div>
+      <div style="text-align:right;">
+        <button id="whatsNewContinueBtn">Continue</button>
+      </div>
+    </div>
+  </div>
+  <!-- Editor Popup Modal (expand animation when editor loads) -->
+  <div class="modal" id="editorPopupModal">
+    <div class="modal-content expand-popup" style="width: 300px;">
+      <div style="text-align: center; font-size: 16px;">Welcome to the Editor!</div>
     </div>
   </div>
   <!-- Fullscreen Taskbar -->
@@ -340,7 +400,9 @@
         <span id="displayDesc"></span>
       </div>
       <div class="editor-actions">
-        <span id="autosaveLabel" style="color:#aaa;margin-right:10px;"></span>
+        <!-- Running timer label -->
+        <span id="runningTimerLabel"></span>
+        <span id="autosaveLabel"></span>
         <button id="runBtn" class="btn-run">Run</button>
         <button id="pauseBtn" class="btn-pause">Pause</button>
         <button id="stopBtn" class="btn-stop">Stop</button>
@@ -367,9 +429,32 @@
   <script>
     const $ = id => document.getElementById(id);
     let projects = [], currentProject = null, projectSaved = false, isPaused = false,
-        autosaveTimeoutId, deleteCandidate = null, downloadCountdownInterval,
-        selectedTemplateCode = "";
+        autosaveTimeoutId, deleteCandidate = null, selectedTemplateCode = "";
     let selectedTemplateKey = null;
+    const appVersion = "1.0.0";
+    $("appVersionText").textContent = appVersion;
+    // Running timer variables
+    let runningStartTime = null, runningTimerInterval = null;
+    function startRunningTimer() {
+      runningStartTime = Date.now();
+      if (runningTimerInterval) clearInterval(runningTimerInterval);
+      runningTimerInterval = setInterval(() => {
+        const elapsed = Date.now() - runningStartTime;
+        const totalSeconds = Math.floor(elapsed / 1000);
+        const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+        const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+        const seconds = String(totalSeconds % 60).padStart(2, '0');
+        $("runningTimerLabel").textContent = `Running for ${hours}:${minutes}:${seconds}`;
+      }, 1000);
+    }
+    function stopRunningTimer() {
+      if (runningTimerInterval) {
+        clearInterval(runningTimerInterval);
+        runningTimerInterval = null;
+      }
+      $("runningTimerLabel").textContent = "";
+    }
+    // Templates
     const templates = {
       empty: { name: "Empty", code: "" },
       helloWorld: { name: "Hello World", code: "<h1> Hello </h1>\n<h2> Hello </h2>\n<h3> Hello </h3>\n<h4> Hello </h4>\n\n<h1> World </h1>\n<h2> World </h2>\n<h3> World </h3>\n<h4> World </h4>" },
@@ -390,44 +475,67 @@
     function formatDate(d) {
       return d.toLocaleDateString() + " " + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
+    // Localsave 2.0: Save projects on device
     function saveProjectsToLocalStorage() {
-      localStorage.setItem("visualEditorProjects", JSON.stringify(projects));
+      localStorage.setItem("visualEditorProjects_device", JSON.stringify(projects));
     }
-    // Load saved projects on page load
+    // Load saved projects from device
     document.addEventListener("DOMContentLoaded", () => {
-      const saved = localStorage.getItem("visualEditorProjects");
+      const saved = localStorage.getItem("visualEditorProjects_device");
       if (saved) {
         projects = JSON.parse(saved);
         renderProjectList();
       }
+      // Show "What's New" popup if not dismissed for this version
+      if (localStorage.getItem("whatsNewDismissed") !== appVersion) {
+        showModal($("whatsNewModal"));
+      }
     });
     function updateProjectInfo() {
       if (!currentProject) return;
-      displayTitle.textContent = currentProject.title;
-      displayDesc.textContent = (currentProject.description || "").slice(0, 25) + ((currentProject.description && currentProject.description.length > 25) ? "..." : "");
+      $("displayTitle").textContent = currentProject.title;
+      $("displayDesc").textContent = (currentProject.description || "").slice(0, 25) +
+        ((currentProject.description && currentProject.description.length > 25) ? "..." : "");
     }
     function logMessage(msg) {
-      const entry = document.createElement("div"); entry.className = "log-entry";
-      const text = document.createElement("span"); text.className = "log-text"; text.textContent = msg;
-      const time = document.createElement("span"); time.className = "log-time"; time.textContent = formatDate(new Date());
+      const entry = document.createElement("div");
+      entry.className = "log-entry";
+      const text = document.createElement("span");
+      text.className = "log-text";
+      text.textContent = msg;
+      const time = document.createElement("span");
+      time.className = "log-time";
+      time.textContent = formatDate(new Date());
       entry.append(text, time);
-      commandLog.appendChild(entry);
-      commandLog.scrollTop = commandLog.scrollHeight;
+      $("commandLog").appendChild(entry);
+      $("commandLog").scrollTop = $("commandLog").scrollHeight;
     }
+    // Reformat project list
     function renderProjectList() {
-      projectList.innerHTML = "";
+      $("projectList").innerHTML = "";
       projects.forEach(p => {
-        const item = document.createElement("div"); item.className = "project-item";
-        const left = document.createElement("div"); left.className = "icon";
-        left.innerHTML = '<span class="material-icons">folder</span> ' + p.title;
-        const right = document.createElement("div"); right.className = "updated-time";
-        right.textContent = "Updated " + formatDate(new Date(p.updated));
-        const trash = document.createElement("button"); trash.className = "trash-btn";
+        const item = document.createElement("div");
+        item.className = "project-item";
+        const details = document.createElement("div");
+        details.className = "project-details";
+        details.innerHTML = '<span class="material-icons" style="vertical-align: middle;">folder</span> ' +
+                            '<span class="project-title">' + p.title + '</span> | ' +
+                            '<span class="project-updated">Updated ' + formatDate(new Date(p.updated)) + '</span>';
+        const trash = document.createElement("button");
+        trash.className = "trash-btn";
         trash.innerHTML = '<span class="material-icons">delete</span>';
-        item.append(left, right, trash);
-        item.addEventListener("click", e => { if (e.target.closest(".trash-btn")) return; currentProject = p; openEditor(); });
-        trash.addEventListener("click", e => { e.stopPropagation(); deleteCandidate = p; showModal(confirmDeleteModal); });
-        projectList.prepend(item);
+        item.append(details, trash);
+        item.addEventListener("click", e => {
+          if (e.target.closest(".trash-btn")) return;
+          currentProject = p;
+          openEditor();
+        });
+        trash.addEventListener("click", e => {
+          e.stopPropagation();
+          deleteCandidate = p;
+          showModal($("confirmDeleteModal"));
+        });
+        $("projectList").prepend(item);
       });
     }
     // Delete confirmation
@@ -436,60 +544,37 @@
     confirmDeleteAgreeBtn.addEventListener("click", () => {
       if (deleteCandidate) {
         projects = projects.filter(pr => pr !== deleteCandidate);
-        if (currentProject === deleteCandidate) hideModal(projectEditorModal);
+        if (currentProject === deleteCandidate) hideModal($("projectEditorModal"));
         renderProjectList();
         saveProjectsToLocalStorage();
         deleteCandidate = null;
       }
-      hideModal(confirmDeleteModal);
+      hideModal($("confirmDeleteModal"));
     });
-    confirmDeleteCancelBtn.addEventListener("click", () => { deleteCandidate = null; hideModal(confirmDeleteModal); });
-    // Download App functionality
-    const downloadTaskbarBtn = $("downloadTaskbarBtn"),
-          downloadPopupModal = $("downloadPopupModal"),
-          downloadStartBtn = $("downloadStartBtn"),
-          downloadCancelBtn = $("downloadCancelBtn");
-    downloadTaskbarBtn.addEventListener("click", () => {
-      if (!currentProject) return;
-      showModal(downloadPopupModal);
-    });
-    downloadCancelBtn.addEventListener("click", () => {
-      clearInterval(downloadCountdownInterval);
-      downloadStartBtn.disabled = false;
-      downloadStartBtn.textContent = "Download";
-      hideModal(downloadPopupModal);
-    });
-    downloadStartBtn.addEventListener("click", () => {
-      let countdown = 5;
-      downloadStartBtn.disabled = true;
-      downloadStartBtn.textContent = "Download (" + countdown + ")";
-      downloadCountdownInterval = setInterval(() => {
-        countdown--;
-        if (countdown > 0) {
-          downloadStartBtn.textContent = "Download (" + countdown + ")";
-        } else {
-          clearInterval(downloadCountdownInterval);
-          const blob = new Blob([codeEditor.value], { type: "text/plain" }),
-                url = URL.createObjectURL(blob),
-                a = document.createElement("a");
-          a.href = url;
-          a.download = currentProject.title.replace(/\s+/g, "_") + ".txt";
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-          downloadStartBtn.disabled = false;
-          downloadStartBtn.textContent = "Download";
-          hideModal(downloadPopupModal);
-        }
-      }, 1000);
-    });
+    confirmDeleteCancelBtn.addEventListener("click", () => { deleteCandidate = null; hideModal($("confirmDeleteModal")); });
+    // (Download App functionality removed – the text link in the top taskbar now handles redirection)
     // About modal functionality
     const aboutModal = $("aboutModal"),
           aboutLink = $("aboutLink"),
           aboutCloseBtn = $("aboutCloseBtn");
     aboutLink.addEventListener("click", e => { e.preventDefault(); showModal(aboutModal); });
     aboutCloseBtn.addEventListener("click", () => { hideModal(aboutModal); });
+    // "What's New" Modal functionality
+    const whatsNewModal = $("whatsNewModal"),
+          whatsNewContinueBtn = $("whatsNewContinueBtn"),
+          dontShowAgainCheckbox = $("dontShowAgainCheckbox"),
+          showMoreLink = $("showMoreLink");
+    whatsNewContinueBtn.addEventListener("click", () => {
+      if (dontShowAgainCheckbox.checked) {
+        localStorage.setItem("whatsNewDismissed", appVersion);
+      }
+      hideModal(whatsNewModal);
+    });
+    showMoreLink.addEventListener("click", e => {
+      e.preventDefault();
+      hideModal(whatsNewModal);
+      showModal(aboutModal);
+    });
     // Create Project modal functionality
     const createProjectBtn = $("createProjectBtn"),
           createProjectModal = $("createProjectModal"),
@@ -550,7 +635,8 @@
       if (file) {
         const reader = new FileReader();
         reader.onload = function(event) {
-          const fileContent = event.target.result, fileName = file.name.replace(/\.[^/.]+$/, ""),
+          const fileContent = event.target.result,
+                fileName = file.name.replace(/\.[^/.]+$/, ""),
                 newP = { title: fileName, description: "", version: "1.0.0", code: fileContent, updated: new Date() };
           projects.push(newP);
           currentProject = newP;
@@ -563,17 +649,24 @@
       }
     });
     importProjectCancelBtn.addEventListener("click", () => { hideModal(importProjectModal); });
+    // Editor Popup (expand animation when editor loads)
+    function showEditorPopup() {
+      showModal($("editorPopupModal"));
+      setTimeout(() => { hideModal($("editorPopupModal")); }, 2000);
+    }
+    // Open Editor
     function openEditor() {
       projectSaved = false;
-      codeEditor.value = currentProject.code;
+      $("codeEditor").value = currentProject.code;
       updateProjectInfo();
-      htmlView.innerHTML = "";
-      commandLog.innerHTML = "";
+      $("htmlView").innerHTML = "";
+      $("commandLog").innerHTML = "";
       updateLineNumbers();
-      showModal(projectEditorModal);
+      showModal($("projectEditorModal"));
+      showEditorPopup();
     }
     function saveProject() {
-      currentProject.code = codeEditor.value;
+      currentProject.code = $("codeEditor").value;
       currentProject.updated = new Date();
       projectSaved = true;
       logMessage("Project saved at " + formatDate(new Date(currentProject.updated)));
@@ -581,7 +674,7 @@
       saveProjectsToLocalStorage();
     }
     const closeProjectBtn = $("closeProjectBtn");
-    closeProjectBtn.addEventListener("click", () => { saveProject(); hideModal(projectEditorModal); });
+    closeProjectBtn.addEventListener("click", () => { saveProject(); hideModal($("projectEditorModal")); });
     const saveAsBtn = $("saveAsBtn"),
           saveAsModal = $("saveAsModal"),
           saveAsFileName = $("saveAsFileName"),
@@ -601,8 +694,9 @@
     saveAsCancelBtn.addEventListener("click", () => hideModal(saveAsModal));
     saveAsConfirmBtn.addEventListener("click", () => {
       if (!currentProject) return;
-      const fn = saveAsFileName.value.trim() || currentProject.title, ext = saveAsFormat.value,
-            blob = new Blob([codeEditor.value], { type: "text/plain" }),
+      const fn = saveAsFileName.value.trim() || currentProject.title,
+            ext = saveAsFormat.value,
+            blob = new Blob([$("codeEditor").value], { type: "application/octet-stream" }),
             url = URL.createObjectURL(blob),
             a = document.createElement("a");
       a.href = url;
@@ -654,65 +748,95 @@
     const runBtn = $("runBtn"),
           pauseBtn = $("pauseBtn"),
           stopBtn = $("stopBtn");
-    runBtn.addEventListener("click", () => { htmlView.innerHTML = codeEditor.value; logMessage("Run executed."); });
-    pauseBtn.addEventListener("click", () => {
-      if (!isPaused) { isPaused = true; pauseBtn.textContent = "Resume"; logMessage("Paused."); }
-      else { isPaused = false; pauseBtn.textContent = "Pause"; htmlView.innerHTML = codeEditor.value; logMessage("Resumed."); }
+    runBtn.addEventListener("click", () => { 
+      $("htmlView").innerHTML = $("codeEditor").value; 
+      logMessage("Run executed."); 
+      startRunningTimer();
     });
-    stopBtn.addEventListener("click", () => { htmlView.innerHTML = ""; isPaused = false; pauseBtn.textContent = "Pause"; logMessage("Stopped."); });
-    // Fullscreen toggle and additional fullscreen buttons
+    pauseBtn.addEventListener("click", () => {
+      if (!isPaused) { 
+        isPaused = true; 
+        pauseBtn.textContent = "Resume"; 
+        logMessage("Paused."); 
+        stopRunningTimer();
+      } else { 
+        isPaused = false; 
+        pauseBtn.textContent = "Pause"; 
+        $("htmlView").innerHTML = $("codeEditor").value; 
+        logMessage("Resumed."); 
+        startRunningTimer();
+      }
+    });
+    stopBtn.addEventListener("click", () => { 
+      $("htmlView").innerHTML = ""; 
+      isPaused = false; 
+      pauseBtn.textContent = "Pause"; 
+      logMessage("Stopped."); 
+      stopRunningTimer();
+    });
+    // Fullscreen toggle and fullscreen taskbar buttons
     const fullscreenBtn = $("fullscreenBtn"),
           exitFullscreenBtn = $("exitFullscreenBtn"),
           fullscreenTaskbar = $("fullscreenTaskbar");
     fullscreenBtn.addEventListener("click", () => {
       document.querySelector(".code-area").style.display = "none";
-      projectEditorModal.classList.add("fullscreen-mode");
+      $("projectEditorModal").classList.add("fullscreen-mode");
       fullscreenTaskbar.style.display = "flex";
     });
     exitFullscreenBtn.addEventListener("click", () => {
       document.querySelector(".code-area").style.display = "block";
-      projectEditorModal.classList.remove("fullscreen-mode");
+      $("projectEditorModal").classList.remove("fullscreen-mode");
       fullscreenTaskbar.style.display = "none";
     });
-    // Fullscreen taskbar buttons functionality
     const fullscreenRunBtn = $("fullscreenRunBtn"),
           fullscreenPauseBtn = $("fullscreenPauseBtn"),
           fullscreenStopBtn = $("fullscreenStopBtn");
-    fullscreenRunBtn.addEventListener("click", () => {
-      htmlView.innerHTML = codeEditor.value;
-      logMessage("Run executed.");
+    fullscreenRunBtn.addEventListener("click", () => { 
+      $("htmlView").innerHTML = $("codeEditor").value; 
+      logMessage("Run executed."); 
+      startRunningTimer();
     });
     fullscreenPauseBtn.addEventListener("click", () => {
       if (!isPaused) { 
         isPaused = true; 
         fullscreenPauseBtn.textContent = "Resume"; 
         logMessage("Paused."); 
+        stopRunningTimer();
       } else { 
         isPaused = false; 
         fullscreenPauseBtn.textContent = "Pause"; 
-        htmlView.innerHTML = codeEditor.value; 
+        $("htmlView").innerHTML = $("codeEditor").value; 
         logMessage("Resumed."); 
+        startRunningTimer();
       }
     });
-    fullscreenStopBtn.addEventListener("click", () => {
-      htmlView.innerHTML = "";
-      isPaused = false;
-      fullscreenPauseBtn.textContent = "Pause";
-      logMessage("Stopped.");
+    fullscreenStopBtn.addEventListener("click", () => { 
+      $("htmlView").innerHTML = ""; 
+      isPaused = false; 
+      fullscreenPauseBtn.textContent = "Pause"; 
+      logMessage("Stopped."); 
+      stopRunningTimer();
     });
     const verticalResizer = $("verticalResizer");
     verticalResizer.addEventListener("mousedown", initVerticalResize);
-    function initVerticalResize(e) { window.addEventListener("mousemove", doVerticalResize); window.addEventListener("mouseup", stopVerticalResize); }
+    function initVerticalResize(e) { 
+      window.addEventListener("mousemove", doVerticalResize); 
+      window.addEventListener("mouseup", stopVerticalResize); 
+    }
     function doVerticalResize(e) {
       const rp = document.querySelector(".right-panel").getBoundingClientRect();
       let newH = e.clientY - rp.top; newH = Math.max(50, Math.min(newH, rp.height - 50));
-      htmlView.style.flex = "none"; htmlView.style.height = newH + "px";
+      $("htmlView").style.flex = "none"; 
+      $("htmlView").style.height = newH + "px";
     }
-    function stopVerticalResize(e) { window.removeEventListener("mousemove", doVerticalResize); window.removeEventListener("mouseup", stopVerticalResize); }
+    function stopVerticalResize(e) { 
+      window.removeEventListener("mousemove", doVerticalResize); 
+      window.removeEventListener("mouseup", stopVerticalResize); 
+    }
     function updateLineNumbers() {
-      const lines = codeEditor.value.split("\n").length;
+      const lines = $("codeEditor").value.split("\n").length;
       const content = Array.from({ length: lines }, (_, i) => (i + 1).toString().padStart(2, "0")).join("\n");
-      lineNumbers.textContent = content;
+      $("lineNumbers").textContent = content;
     }
     const codeEditor = $("codeEditor"),
           lineNumbers = $("lineNumbers");
@@ -727,10 +851,10 @@
     // Autosave with random delay (500-5000ms)
     function scheduleAutosave() {
       const delay = Math.floor(Math.random() * 4501) + 500;
-      autosaveLabel.textContent = "Next autosave in " + delay + " ms";
+      $("autosaveLabel").textContent = "Next autosave in " + delay + " ms";
       autosaveTimeoutId = setTimeout(() => {
-        if (projectEditorModal.style.display === "flex" && currentProject) {
-          currentProject.code = codeEditor.value;
+        if ($("projectEditorModal").style.display === "flex" && currentProject) {
+          currentProject.code = $("codeEditor").value;
           currentProject.updated = new Date();
           logMessage("Autosaved at " + formatDate(new Date(currentProject.updated)));
           renderProjectList();
@@ -745,9 +869,7 @@
           templateModal = $("templateModal"),
           templateSelectBtn = $("templateSelectBtn"),
           templateCancelBtn = $("templateCancelBtn");
-    selectTemplateBtn.addEventListener("click", () => {
-      showModal(templateModal);
-    });
+    selectTemplateBtn.addEventListener("click", () => { showModal(templateModal); });
     const templateBoxes = document.querySelectorAll(".template-box");
     templateBoxes.forEach(box => {
       box.addEventListener("click", () => {
@@ -763,9 +885,7 @@
       }
       hideModal(templateModal);
     });
-    templateCancelBtn.addEventListener("click", () => {
-      hideModal(templateModal);
-    });
+    templateCancelBtn.addEventListener("click", () => { hideModal(templateModal); });
   </script>
 </body>
 </html>
